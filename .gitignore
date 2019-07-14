@@ -1,5 +1,6 @@
 node_modules
 build
+notes
 .env
 .eslintrc
 .soliumignore
