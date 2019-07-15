@@ -20,7 +20,11 @@ contract('Windstorm', (accounts) => {
   let _applicationRequestId3;
   let _applicationRequestId4;
   let _statusRequestId1;
+  let _statusRequestId2;
+  let _statusRequestId3;
   let _payoutId1;
+  let _payoutId2;
+  let _payoutId3;
 
   // bucket * 3 - (1|2|3) = payout index
   // 25mi, 50mi, 75mi
@@ -156,6 +160,53 @@ contract('Windstorm', (accounts) => {
   });
 
   describe('policyStatusCallback', function () {
+    before(async () => {
+      // Apply policy
+      const txn1 = await _contract.applyForPolicy(
+        fromAscii('19.5781246,-64.2416041'),
+        fromAscii(_perilContractId),
+        20672,
+        fromAscii('USD'),
+        _payoutOptions3,
+        fromAscii(_externalId3),
+        { from: _managerAccount },
+      );
+      // Apply policy
+      const txn2 = await _contract.applyForPolicy(
+        fromAscii('19.5781246,-64.2416041'),
+        fromAscii(_perilContractId),
+        37854,
+        fromAscii('USD'),
+        _payoutOptions4,
+        fromAscii(_externalId4),
+        { from: _managerAccount },
+      );
+      truffleAssert.eventEmitted(txn1, 'LogRequestForApplication', (ev) => {
+        // Set request id for next test
+        _applicationRequestId3 = ev.requestId;
+        return true;
+      });
+      truffleAssert.eventEmitted(txn2, 'LogRequestForApplication', (ev) => {
+        // Set request id for next test
+        _applicationRequestId4 = ev.requestId;
+        return true;
+      });
+      // Underwrite policies
+      const txn3 = await _contract.applicationCallback(_applicationRequestId3, false, { from: _managerAccount });
+      const txn4 = await _contract.applicationCallback(_applicationRequestId4, false, { from: _managerAccount });
+      // Set status request ids
+      truffleAssert.eventEmitted(txn3, 'LogRequestPolicyStatus', (ev) => {
+        // Set request id for next test
+        _statusRequestId2 = ev.requestId;
+        return true;
+      });
+      truffleAssert.eventEmitted(txn4, 'LogRequestPolicyStatus', (ev) => {
+        // Set request id for next test
+        _statusRequestId3 = ev.requestId;
+        return true;
+      });
+    });
+
     it('should throw an error for invalid request id parameter', async () => {
       try {
         await _contract.policyStatusCallback(0, 0, 0, { from: _managerAccount });
@@ -182,6 +233,28 @@ contract('Windstorm', (accounts) => {
         // Set request id for next test
         _payoutId1 = ev.payoutId;
         return ev.amount.toNumber() === 600000;
+      });
+    });
+
+    it('should emit LogRequestPayout event for successful processing of payout option 2', async () => {
+      const txn =
+        await _contract.policyStatusCallback(_statusRequestId2, 5, 1, { from: _managerAccount });
+
+      truffleAssert.eventEmitted(txn, 'LogRequestPayout', (ev) => {
+        // Set request id for next test
+        _payoutId2 = ev.payoutId;
+        return ev.amount.toNumber() === 75000;
+      });
+    });
+
+    it('should emit LogRequestPayout event for successful processing of payout option 3', async () => {
+      const txn =
+        await _contract.policyStatusCallback(_statusRequestId3, 7, 3, { from: _managerAccount });
+
+      truffleAssert.eventEmitted(txn, 'LogRequestPayout', (ev) => {
+        // Set request id for next test
+        _payoutId3 = ev.payoutId;
+        return ev.amount.toNumber() === 1000000;
       });
     });
   });
