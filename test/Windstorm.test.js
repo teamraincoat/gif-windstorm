@@ -2,19 +2,17 @@ const truffleAssert = require('truffle-assertions');
 const { addMonths } = require('date-fns');
 
 const Windstorm = artifacts.require('Windstorm');
-const { fromAscii } = web3.utils;
-
-const removeHyphens = (str) => str.replace(/-/g, '');
+const { fromAscii, sha3 } = web3.utils;
 
 contract('Windstorm', (accounts) => {
   const _managerAccount = accounts[0];
   const _perilContractId = 'pr_wind_2019';
 
   let _contract;
-  let _externalId1 = removeHyphens('96600c37-79c1-4009-aef8-f1c1dd117d0d');
-  let _externalId2 = removeHyphens('051fc525-17e8-4745-b2cd-7c29141f18b4');
-  let _externalId3 = removeHyphens('85d8e547-c345-4830-a9b1-7e92aa0a0753');
-  let _externalId4 = removeHyphens('fc422d71-f378-4679-8874-5db7dfe9d67e');
+  let _externalId1 = sha3('96600c37-79c1-4009-aef8-f1c1dd117d0d');
+  let _externalId2 = sha3('051fc525-17e8-4745-b2cd-7c29141f18b4');
+  let _externalId3 = sha3('85d8e547-c345-4830-a9b1-7e92aa0a0753');
+  let _externalId4 = sha3('fc422d71-f378-4679-8874-5db7dfe9d67e');
   let _applicationRequestId1;
   let _applicationRequestId2;
   let _applicationRequestId3;
@@ -82,7 +80,7 @@ contract('Windstorm', (accounts) => {
           37854,
           fromAscii('USD'),
           _payoutOptions1,
-          fromAscii(_externalId1),
+          _externalId1,
           { from: _managerAccount },
         );
       } catch (error) {
@@ -98,7 +96,7 @@ contract('Windstorm', (accounts) => {
         37854,
         fromAscii('USD'),
         _payoutOptions1,
-        fromAscii(_externalId1),
+        _externalId1,
         { from: _managerAccount },
       );
       truffleAssert.eventEmitted(txn, 'LogRequestForApplication', (ev) => {
@@ -117,7 +115,7 @@ contract('Windstorm', (accounts) => {
         37854,
         fromAscii('USD'),
         _payoutOptions2,
-        fromAscii(_externalId2),
+        _externalId2,
         { from: _managerAccount },
       );
       truffleAssert.eventEmitted(txn, 'LogRequestForApplication', (ev) => {
@@ -168,7 +166,7 @@ contract('Windstorm', (accounts) => {
         20672,
         fromAscii('USD'),
         _payoutOptions3,
-        fromAscii(_externalId3),
+        _externalId3,
         { from: _managerAccount },
       );
       // Apply policy
@@ -178,7 +176,7 @@ contract('Windstorm', (accounts) => {
         37854,
         fromAscii('USD'),
         _payoutOptions4,
-        fromAscii(_externalId4),
+        _externalId4,
         { from: _managerAccount },
       );
       truffleAssert.eventEmitted(txn1, 'LogRequestForApplication', (ev) => {
