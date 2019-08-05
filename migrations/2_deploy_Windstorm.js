@@ -18,11 +18,14 @@ const Windstorm = artifacts.require('Windstorm.sol');
 
 
 module.exports = async (deployer, network, accounts) => {
-  const licenseController = await LicenseController.at(LICENSE_CONTROLLER_ADDRESS);
   const productService = await ProductService.at(PRODUCT_CONTROLLER_ADDRESS);
-  const instanceOperator = await InstanceOperatorService.at(INSTANCE_OPERATOR_ADDRESS);
 
   await deployer.deploy(Windstorm, productService.address, { gas: 3000000 });
+
+  if (network === 'rinkeby') return;
+
+  const licenseController = await LicenseController.at(LICENSE_CONTROLLER_ADDRESS);
+  const instanceOperator = await InstanceOperatorService.at(INSTANCE_OPERATOR_ADDRESS);
 
   const windstorm = await Windstorm.deployed();
 

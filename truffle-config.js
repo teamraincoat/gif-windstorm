@@ -1,3 +1,5 @@
+const HDWalletProvider = require('truffle-hdwallet-provider');
+
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -48,6 +50,18 @@ module.exports = {
      network_id: "7777",       // Any network (default: none)
     },
 
+    rinkeby: {
+      // MNEMONIC: BIP39 mnemonic, e.g. https://iancoleman.io/bip39/#english
+      // HTTP_PRODIVER: e.g. https://rinkeby.infura.io/<your-token>
+      provider: () => new HDWalletProvider(process.env.MNEMONIC, process.env.HTTP_PROVIDER),
+      network_id: 4,
+      confirmation: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true,
+      gas: 6600000,
+      gasPrice: 10 * (10 ** 9),
+    },
+
     // Another network with more advanced options...
     // advanced: {
       // port: 8777,             // Custom port
@@ -85,15 +99,14 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.5.2",    // Fetch exact version from solc-bin (default: truffle's version)
-      // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
-      // settings: {          // See the solidity docs for advice about optimization and evmVersion
-      //  optimizer: {
-      //    enabled: false,
-      //    runs: 200
-      //  },
-      //  evmVersion: "byzantium"
-      // }
+      version: "0.5.2",
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 200,
+        },
+        evmVersion: 'byzantium', // -> constantinople
+      },
     },
   },
 };
